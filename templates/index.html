@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>מעקב מניות</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: #444; }
+        form { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: #eee; border-radius: 5px; }
+        input, select, button { padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
+        th { background-color: #007bff; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .delete-link { color: #dc3545; text-decoration: none; }
+        .delete-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>לוח מעקב מניות</h1>
+
+        <h2>הוסף מניה למעקב</h2>
+      <form action="{{ url_for('add_stock') }}" method="post">
+            <input type="text" name="ticker" placeholder="סימול מניה (למשל GOOGL)" required>
+            <select name="condition" required>
+                <option value="above">כשהמחיר מעל</option>
+                <option value="below">כשהמחיר מתחת</option>
+            </select>
+            <input type="number" step="0.01" name="price" placeholder="מחיר יעד" required>
+            <button type="submit">הוסף למעקב</button>
+        </form>
+
+        <h2>מניות במעקב</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>סימול</th>
+                    <th>תנאי</th>
+                    <th>מחיר יעד</th>
+                    <th>פעולות</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                <tr>
+                    <td>{{ stock['ticker'] }}</td>
+                    <td>
+                        {% if stock['condition_type'] == 'above' %}
+                            מעל
+                        {% else %}
+                            מתחת
+                        {% endif %}
+                    </td>
+                    <td>${{ "%.2f"|format(stock['target_price']) }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_stock', stock_id=stock['id']) }}" class="delete-link">מחק</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">אין כרגע מניות במעקב.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
